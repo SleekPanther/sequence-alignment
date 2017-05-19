@@ -71,6 +71,8 @@ public class SequenceAlignment {
 		System.out.println("\nPredecessor table (where the values came from)");
 		printTable3D(predecessorIndexes);
 
+		System.out.println("\nMinimum penalty for aligning "+seq1 +" & "+seq2);
+		findAlignment(seq1, seq2, predecessorIndexes);
 	}
 
 	private void printTable(int[][] table){
@@ -91,8 +93,31 @@ public class SequenceAlignment {
 			System.out.println();		//Ends up printing a trailing newline
 		}
 	}
-	private void findAlignment(){
 
+	//Retrace steps the find the actual alignment. Only call this after calcOptimalAlignment() has been called
+	private void findAlignment(String seq1, String seq2, int[][][] predecessors){
+		String seq1Aligned = "";
+		String seq2Aligned = "";
+
+//Clean up the while & break conditions
+//Change to simply i>0 & then print the upper left column
+		int i=predecessors.length-1;
+		int j=predecessors[i].length-1;
+		while(i>=0){
+			while(j>=0){
+				System.out.println("[i="+i+", j="+j+"]  " + Arrays.toString(predecessors[i][j]));
+				i=predecessors[i][j][0];
+				j=predecessors[i][j][1];
+				if(i==0 && j==0){
+					break;
+				}
+			}
+			if(i==0 && j==0){
+				break;
+			}
+		}
+
+		System.out.println("\nOptimal Alignment:");
 	}
 
 	//consider changing to char method
