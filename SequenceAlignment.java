@@ -19,13 +19,14 @@ public class SequenceAlignment {
 	}
 
 	public void calcOptimalAlignment(String seq1, String seq2){
-		seq1 = seq1.trim();		//trime any whitespace
+		seq1 = seq1.trim();		//trim any whitespace
 		seq2 = seq2.trim();
 
 		seq1 = " " + seq1;		//prepend a space @ the start. Allows for easier calls to mismatchPenalty() & array boundaryies for size of memoTalbe to be "<" instead of "<="
 		seq2 = " " + seq2;
 
 		memoTable = new int[seq1.length()][seq2.length()];
+		predecessorIndexes = new int[seq1.length()][seq2.length()][2];
 
 		//Array bounds are < seq1.length() (not <= ) since both sequences have a blank space @ the start
 		//Fill 0th column
@@ -40,14 +41,36 @@ public class SequenceAlignment {
 		//Fill rest of memo table
 		for(int j=1; j<seq2.length(); j++){
 			for(int i=1; i<seq1.length(); i++){
-				memoTable[i][j] =  Math.min( Math.min(mismatchPenalty(seq1.charAt(i)+"", seq2.charAt(j)+"") + memoTable[i-1][j-1],	//case1: seq1[i] & seq2[j] aligned with each other
-													GAP_PENALTY+memoTable[i-1][j]),		//case2: seq1 with gap
-													GAP_PENALTY+memoTable[i][j-1]		//case3: seq2 with gap
-									);		//end min of 3 values
+				int case1 = mismatchPenalty(seq1.charAt(i)+"", seq2.charAt(j)+"") + memoTable[i-1][j-1];	//case1: seq1[i] & seq2[j] aligned with each other
+				int case2 = GAP_PENALTY+memoTable[i-1][j];		//case2: seq1 with gap
+				int case3 = GAP_PENALTY+memoTable[i][j-1];		//case3: seq2 with gap
+				//Calculate the min of 3 values & store predecessors
+				if(case1<=case2 && case1<=case3){		//case1 smallest
+					memoTable[i][j] = case1;
+					predecessorIndexes[i][j][0] = i-1;
+					predecessorIndexes[i][j][1] = j-1;
+					System.out.println("case1: "+case1);
+				}
+				else if(case2<=case1 && case2<=case3){	//case2 smallest
+					memoTable[i][j] = case2;
+					predecessorIndexes[i][j][0] = i-1;
+					predecessorIndexes[i][j][1] = j;
+					System.out.println("case2: "+case2);
+				}
+				else{									//case3 smallest
+					memoTable[i][j] = case3;
+					predecessorIndexes[i][j][0] = i;
+					predecessorIndexes[i][j][1] = j-1;
+					System.out.println("case3: "+case3);
+				}
 			}
 		}
 
+		System.out.println("Memoization table");
 		printTable(memoTable);
+		System.out.println("\nPredecessor table (where the values came from)");
+		printTable3D(predecessorIndexes);
+
 	}
 
 	private void printTable(int[][] table){
@@ -60,6 +83,14 @@ public class SequenceAlignment {
 		}
 	}
 
+	private void printTable3D(int[][][] table){
+		for(int[][] row : table){
+			for(int[] xyPair : row){
+				System.out.print("["+xyPair[0] + ", "+xyPair[1]+"]\t");
+			}
+			System.out.println();		//Ends up printing a trailing newline
+		}
+	}
 	private void findAlignment(){
 
 	}
