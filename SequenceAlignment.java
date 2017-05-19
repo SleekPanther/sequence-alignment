@@ -32,11 +32,19 @@ public class SequenceAlignment {
 		//Fill 0th column
 		for(int i=0; i<seq1.length(); i++){
 			memoTable[i][0] = i * GAP_PENALTY;		// base case: j = 0
+			predecessorIndexes[i][0][0] = i-1;
+			predecessorIndexes[i][0][1] = 0;
 		}
 		//Fill 0th row
 		for(int j=0; j<seq2.length(); j++){
 			memoTable[0][j] = j * GAP_PENALTY;		// base case: i = 0
+			predecessorIndexes[0][j][0] = 0;
+			predecessorIndexes[0][j][1] = j-1;
 		}
+		//Set upper left with negative predecessor since it has no predecessor
+		predecessorIndexes[0][0][0] = -1;
+		predecessorIndexes[0][0][1] = -1;
+
 
 		//Fill rest of memo table
 		for(int j=1; j<seq2.length(); j++){
@@ -96,6 +104,9 @@ public class SequenceAlignment {
 
 	//Retrace steps the find the actual alignment. Only call this after calcOptimalAlignment() has been called
 	private void findAlignment(String seq1, String seq2, int[][][] predecessors){
+		seq1 = seq1.substring(1, seq1.length());	//remove 1st character (padding space required in previous method)
+		seq2 = seq2.substring(1, seq2.length());
+
 		String seq1Aligned = "";
 		String seq2Aligned = "";
 
