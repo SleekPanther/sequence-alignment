@@ -19,16 +19,32 @@ public class SequenceAlignment {
 	}
 
 	public void calcOptimalAlignment(String seq1, String seq2){
-		seq1 = seq1.trim();
+		seq1 = seq1.trim();		//trime any whitespace
 		seq2 = seq2.trim();
 
-		memoTable = new int[seq1.length() +1][seq2.length() +1];
+		seq1 = " " + seq1;		//prepend a space @ the start. Allows for easier calls to mismatchPenalty() & array boundaryies for size of memoTalbe to be "<" instead of "<="
+		seq2 = " " + seq2;
 
-		for(int i=0; i<=seq1.length(); i++){
+		memoTable = new int[seq1.length()][seq2.length()];
+
+		//Array bounds are < seq1.length() (not <= ) since both sequences have a blank space @ the start
+		//Fill 0th column
+		for(int i=0; i<seq1.length(); i++){
 			memoTable[i][0] = i * GAP_PENALTY;		// base case: j = 0
 		}
-		for(int j=0; j<=seq2.length(); j++){
-			memoTable[0][j] = j * GAP_PENALTY;		// base case: j = 0
+		//Fill 0th row
+		for(int j=0; j<seq2.length(); j++){
+			memoTable[0][j] = j * GAP_PENALTY;		// base case: i = 0
+		}
+
+		//Fill rest of memo table
+		for(int j=1; j<seq2.length(); j++){
+			for(int i=1; i<seq1.length(); i++){
+				memoTable[i][j] =  Math.min( Math.min(mismatchPenalty(seq1.charAt(i)+"", seq2.charAt(j)+"") + memoTable[i-1][j-1],	//case1: seq1[i] & seq2[j] aligned with each other
+													GAP_PENALTY+memoTable[i-1][j]),		//case2: seq1 with gap
+													GAP_PENALTY+memoTable[i][j-1]		//case3: seq2 with gap
+									);		//end min of 3 values
+			}
 		}
 
 		printTable(memoTable);
@@ -48,6 +64,7 @@ public class SequenceAlignment {
 
 	}
 
+	//consider changing to char method
 	public int mismatchPenalty(String char1, String char2){
 		char1 = char1.trim().toLowerCase();
 		char2 = char2.trim().toLowerCase();
@@ -73,8 +90,8 @@ public class SequenceAlignment {
 		System.out.println(sequenceAligner.mismatchPenalty("b", "x"));
 		System.out.println(sequenceAligner.mismatchPenalty("a", "z"));
 
-		String testString1 = "abcd";
-		String testString2 = "abc";
+		String testString1 = "mean";
+		String testString2 = "name";
 		sequenceAligner.calcOptimalAlignment(testString1, testString2);
 	}
 
