@@ -6,12 +6,10 @@ public class SequenceAlignment {
 	static final int CONSONANT_CONSONANT_PENALTY = 1;
 	static final int VOWEL_CONSONANT_PENALTY = 3;
 
-	static final String GAP_CHAR = "_";
+	static final String GAP_CHAR = "_";		//For printing the final alignment
 
-	//lowercase uppercase vowels
-
-	String[] vowels = {"a", "e", "i", "o", "u"};
-	String[] consonants = {"b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z"};
+	Character[] vowels = new Character[] {'a', 'e', 'i', 'o', 'u'};
+	Character[] consonants = new Character[] {'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z'};
 
 	int[][] memoTable;
 	int[][][] predecessorIndexes;	//stored index where the value @ memoTable[i][j] came from (diagonal, above or left)
@@ -22,6 +20,9 @@ public class SequenceAlignment {
 
 		seq1 = seq1.trim();		//trim any whitespace
 		seq2 = seq2.trim();
+
+		seq1 = seq1.replaceAll(" ", "");	//Remove spaces
+		seq2 = seq2.replaceAll(" ", "");
 
 		seq1 = " " + seq1;		//prepend a space @ the start. Allows for easier calls to mismatchPenalty() & array boundaryies for size of memoTalbe to be "<" instead of "<="
 		seq2 = " " + seq2;
@@ -51,7 +52,7 @@ public class SequenceAlignment {
 		//Fill rest of memo table
 		for(int j=1; j<seq2.length(); j++){
 			for(int i=1; i<seq1.length(); i++){
-				int bothAligned = mismatchPenalty(seq1.charAt(i)+"", seq2.charAt(j)+"") + memoTable[i-1][j-1];	//case1: seq1[i] & seq2[j] aligned with each other
+				int bothAligned = mismatchPenalty(seq1.charAt(i), seq2.charAt(j)) + memoTable[i-1][j-1];	//case1: seq1[i] & seq2[j] aligned with each other
 				int seq1WithGap = GAP_PENALTY+memoTable[i-1][j];		//case2: seq1 with gap
 				int seq2WithGap = GAP_PENALTY+memoTable[i][j-1];		//case3: seq2 with gap
 				//Calculate the min of 3 values & store predecessors
@@ -112,7 +113,7 @@ public class SequenceAlignment {
 
 		//Retrace the memoTable calculations. Stops when reaches the start of 1 sequence (so additional gaps may still need to be added to the other)
 		while(i>0 && j>0){
-			if(memoTable[i][j] - mismatchPenalty(seq1.charAt(i)+"", seq2.charAt(j)+"") == memoTable[i-1][j-1]){		//case1: both aligned
+			if(memoTable[i][j] - mismatchPenalty(seq1.charAt(i), seq2.charAt(j)) == memoTable[i-1][j-1]){		//case1: both aligned
 				seq1Aligned = seq1.charAt(i) + seq1Aligned;
 				seq2Aligned = seq2.charAt(j) + seq2Aligned;
 				i=i-1;
@@ -147,12 +148,8 @@ public class SequenceAlignment {
 		System.out.println("\nOptimal Alignment:\n" +seq1Aligned+"\n"+seq2Aligned);
 	}
 
-	//consider changing to char method
-	public int mismatchPenalty(String char1, String char2){
-		char1 = char1.trim().toLowerCase();
-		char2 = char2.trim().toLowerCase();
-		
-		if(char1.equals(char2)){	//no mismatch
+	public int mismatchPenalty(char char1, char char2){
+		if(char1==char2){		//no mismatch
 			return 0;
 		}
 		else if(Arrays.asList(consonants).contains(char1) && Arrays.asList(consonants).contains(char2)){
@@ -168,12 +165,7 @@ public class SequenceAlignment {
 	public static void main(String[] args) {
 		SequenceAlignment sequenceAligner = new SequenceAlignment();
 
-		// System.out.println(sequenceAligner.mismatchPenalty(" a  ", " A            "));
-		// System.out.println(sequenceAligner.mismatchPenalty(" a  ", " I            "));
-		// System.out.println(sequenceAligner.mismatchPenalty("b", "x"));
-		// System.out.println(sequenceAligner.mismatchPenalty("a", "z"));
-
-		String[][] testSequences = { {"mean", "name"},
+		String[][] testSequences = { {"MEAN", "name"},
 									{"abc", "ab"},
 									{"asdc", "gcasa"},
 									{"abc", "bc"}
