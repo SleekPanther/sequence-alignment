@@ -13,10 +13,10 @@ If 2 characters are aligned with each other, there may be a **mismatch penalty (
 **Minimum cost =** sum of mismatch & gap penalties (the optimal alignment)
 
 ## Optimal Substructure
-
+![](images/optimal-substructure.png)
 
 ## Pseudocode
-
+![](images/pseudocode.png)
 
 ## Usage
 ### Requirements & Caveats
@@ -33,6 +33,9 @@ If 2 characters are aligned with each other, there may be a **mismatch penalty (
 - Provide 2 strings (edit `testSequences` 2D array)
 - Optionally change the `GAP_PENALTY` and the mismatch penalties  
 Currently `VOWEL_VOWEL_PENALTY` and `CONSONANT_CONSONANT_PENALTY` are the same, but are arbitrary
+
+### Example: aligning "mean" with "name"
+![](images/example-mean-name.png)
 
 ## Code Notes
 - `findAlignment()` should only be called from inside `calcOptimalAlignment()` because it uses `memoTable` & the 2 sequences to display the actual alignment
