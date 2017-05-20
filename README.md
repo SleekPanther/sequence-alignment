@@ -15,6 +15,10 @@ If 2 characters are aligned with each other, there may be a **mismatch penalty (
 ## Optimal Substructure
 ![](images/optimal-substructure.png)
 
+## Runtime
+**O(M*N)**  
+Storage: also O(M*N) which requires a large 2D array
+
 ## Pseudocode
 ![](images/pseudocode.png)
 
