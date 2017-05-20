@@ -109,36 +109,36 @@ public class SequenceAlignment {
 
 		//Retrace the memoTable calculations. Stops when reaches the start of 1 sequence (so additional gaps may still need to be added to the other)
 		while(i>0 && j>0){
-			if(memoTable[i][j] - mismatchPenalty(seq1.charAt(i)+"", seq2.charAt(j)+"") == memoTable[i-1][j-1]){
+			if(memoTable[i][j] - mismatchPenalty(seq1.charAt(i)+"", seq2.charAt(j)+"") == memoTable[i-1][j-1]){		//case1: both aligned
 				seq1Aligned = seq1.charAt(i) + seq1Aligned;
 				seq2Aligned = seq2.charAt(j) + seq2Aligned;
 				i=i-1;
 				j=j-1;
 				System.out.println("i-1 : j-1 \t" +seq1Aligned+"\t\t|"+seq2Aligned);
 			}
-			else if(memoTable[i][j] - GAP_PENALTY == memoTable[i][j-1]){
-				seq2Aligned = seq2.charAt(j) + seq2Aligned;
-				seq1Aligned = GAP_CHAR + seq1Aligned;
-				j=j-1;
-				System.out.println("j-1 (2 w Gap) \t" +seq1Aligned+"\t\t|"+seq2Aligned);
-			}
-			else if(memoTable[i][j] - GAP_PENALTY == memoTable[i-1][j]){
+			else if(memoTable[i][j] - GAP_PENALTY == memoTable[i-1][j]){		//case2: seq1 with gap
 				seq1Aligned = seq1.charAt(i) + seq1Aligned;
 				seq2Aligned = GAP_CHAR + seq2Aligned;
 				i=i-1;
 				System.out.println("i-1 (1 with gap) \t"  +seq1Aligned+"\t\t|"+seq2Aligned);
 			}
+			else if(memoTable[i][j] - GAP_PENALTY == memoTable[i][j-1]){		//case3: seq2 with gap
+				seq2Aligned = seq2.charAt(j) + seq2Aligned;
+				seq1Aligned = GAP_CHAR + seq1Aligned;
+				j=j-1;
+				System.out.println("j-1 (2 w Gap) \t" +seq1Aligned+"\t\t|"+seq2Aligned);
+			}
 		}
 		//Now i==0 or j==0 or both. Finish by adding any additional leading gaps to the start of the sequence whoes pointer ISN'T == 0
-		while(j>0){
-			seq2Aligned = seq2.charAt(j) + seq2Aligned;
-			seq1Aligned = GAP_CHAR + seq1Aligned;
-			j=j-1;
-		}
-		while(i>0){
+		while(i>0){		//Seq1 reached the beginning, print rest of seq2 & add gaps to seq2
 			seq1Aligned = seq1.charAt(i) + seq1Aligned;
 			seq2Aligned = GAP_CHAR + seq2Aligned;
 			i=i-1;
+		}
+		while(j>0){		//Seq2 reached the beginning, print rest of seq1 & add gaps to seq2
+			seq2Aligned = seq2.charAt(j) + seq2Aligned;
+			seq1Aligned = GAP_CHAR + seq1Aligned;
+			j=j-1;
 		}
 
 		System.out.println("\nOptimal Alignment:\n" +seq1Aligned+"\n"+seq2Aligned);
