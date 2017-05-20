@@ -10,13 +10,16 @@ public class SequenceAlignment {
 
 	//lowercase uppercase vowels
 
-	String[] vowelsLowerCase = {"a", "e", "i", "o", "u"};
-	String[] conconantsLowerCase = {"b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z"};
+	String[] vowels = {"a", "e", "i", "o", "u"};
+	String[] consonants = {"b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z"};
 
 	int[][] memoTable;
 	int[][][] predecessorIndexes;	//stored index where the value @ memoTable[i][j] came from (diagonal, above or left)
 
 	public void calcOptimalAlignment(String seq1, String seq2){
+		seq1 = seq1.toLowerCase();
+		seq2 = seq2.toLowerCase();
+
 		seq1 = seq1.trim();		//trim any whitespace
 		seq2 = seq2.trim();
 
@@ -152,10 +155,10 @@ public class SequenceAlignment {
 		if(char1.equals(char2)){	//no mismatch
 			return 0;
 		}
-		else if(Arrays.asList(conconantsLowerCase).contains(char1) && Arrays.asList(conconantsLowerCase).contains(char2)){
+		else if(Arrays.asList(consonants).contains(char1) && Arrays.asList(consonants).contains(char2)){
 			return CONSONANT_CONSONANT_PENALTY;
 		}
-		else if(Arrays.asList(vowelsLowerCase).contains(char1) && Arrays.asList(vowelsLowerCase).contains(char2)){
+		else if(Arrays.asList(vowels).contains(char1) && Arrays.asList(vowels).contains(char2)){
 			return VOWEL_VOWEL_PENALTY;
 		}
 		return VOWEL_CONSONANT_PENALTY;
