@@ -6,17 +6,15 @@ public class SequenceAlignment {
 	static final int CONSONANT_CONSONANT_PENALTY = 1;
 	static final int VOWEL_CONSONANT_PENALTY = 3;
 
+	static final String GAP_CHAR = "_";
+
 	//lowercase uppercase vowels
 
 	String[] vowelsLowerCase = {"a", "e", "i", "o", "u"};
 	String[] conconantsLowerCase = {"b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z"};
 
 	int[][] memoTable;
-	int[][][] predecessorIndexes;
-
-
-	public SequenceAlignment(){
-	}
+	int[][][] predecessorIndexes;	//stored index where the value @ memoTable[i][j] came from (diagonal, above or left)
 
 	public void calcOptimalAlignment(String seq1, String seq2){
 		seq1 = seq1.trim();		//trim any whitespace
@@ -25,6 +23,7 @@ public class SequenceAlignment {
 		seq1 = " " + seq1;		//prepend a space @ the start. Allows for easier calls to mismatchPenalty() & array boundaryies for size of memoTalbe to be "<" instead of "<="
 		seq2 = " " + seq2;
 
+		//Initialize 2D arrays for memoization
 		memoTable = new int[seq1.length()][seq2.length()];
 		predecessorIndexes = new int[seq1.length()][seq2.length()][2];
 
@@ -79,16 +78,14 @@ public class SequenceAlignment {
 		System.out.println("\nPredecessor table (where the values came from)");
 		printTable3D(predecessorIndexes);
 
-		System.out.println("\n" + memoTable[seq1.length()-1][seq2.length()-1] + "\t is the Minimum penalty for aligning "+seq1 +" & "+seq2);
+		System.out.println("\n" + memoTable[seq1.length()-1][seq2.length()-1] + "\t is the Minimum penalty for aligning \""+seq1.substring(1, seq1.length()) +"\" & \""+seq2.substring(1, seq2.length()) +"\"");
 		findAlignment(seq1, seq2);
-		// findAlignment(seq1, seq2, predecessorIndexes);
 	}
 
 	private void printTable(int[][] table){
 		for(int[] row : table){
-			System.out.print(row[0]);
-			for(int j=1; j<row.length; j++){
-				System.out.print("\t"+row[j]);
+			for(int value : row){
+				System.out.print(value + "\t");
 			}
 			System.out.println();
 		}
@@ -97,17 +94,17 @@ public class SequenceAlignment {
 	private void printTable3D(int[][][] table){
 		for(int[][] row : table){
 			for(int[] xyPair : row){
-				System.out.print("["+xyPair[0] + ", "+xyPair[1]+"]\t");
+				System.out.print(Arrays.toString(xyPair) + "\t");
 			}
 			System.out.println();		//Ends up printing a trailing newline
 		}
 	}
 
 	private void findAlignment(String seq1, String seq2){
-		String seq1Aligned = "";
+		String seq1Aligned = "";		//Holds the actual sequence with gaps added
 		String seq2Aligned = "";
 
-		int i = seq1.length()-1;
+		int i = seq1.length()-1;	//-1 since seq1 & seq2 have leading space
 		int j = seq2.length()-1;
 
 		//Retrace the memoTable calculations. Stops when reaches the start of 1 sequence (so additional gaps may still need to be added to the other)
@@ -121,13 +118,13 @@ public class SequenceAlignment {
 			}
 			else if(memoTable[i][j] - GAP_PENALTY == memoTable[i][j-1]){
 				seq2Aligned = seq2.charAt(j) + seq2Aligned;
-				seq1Aligned = "_" + seq1Aligned;
+				seq1Aligned = GAP_CHAR + seq1Aligned;
 				j=j-1;
 				System.out.println("j-1 (2 w Gap) \t" +seq1Aligned+"\t\t|"+seq2Aligned);
 			}
 			else if(memoTable[i][j] - GAP_PENALTY == memoTable[i-1][j]){
 				seq1Aligned = seq1.charAt(i) + seq1Aligned;
-				seq2Aligned = "_" + seq2Aligned;
+				seq2Aligned = GAP_CHAR + seq2Aligned;
 				i=i-1;
 				System.out.println("i-1 (1 with gap) \t"  +seq1Aligned+"\t\t|"+seq2Aligned);
 			}
@@ -135,12 +132,12 @@ public class SequenceAlignment {
 		//Now i==0 or j==0 or both. Finish by adding any additional leading gaps to the start of the sequence whoes pointer ISN'T == 0
 		while(j>0){
 			seq2Aligned = seq2.charAt(j) + seq2Aligned;
-			seq1Aligned = "_" + seq1Aligned;
+			seq1Aligned = GAP_CHAR + seq1Aligned;
 			j=j-1;
 		}
 		while(i>0){
 			seq1Aligned = seq1.charAt(i) + seq1Aligned;
-			seq2Aligned = "_" + seq2Aligned;
+			seq2Aligned = GAP_CHAR + seq2Aligned;
 			i=i-1;
 		}
 
