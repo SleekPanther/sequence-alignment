@@ -60,19 +60,16 @@ public class SequenceAlignment {
 					memoTable[i][j] = bothAligned;
 					predecessorIndexes[i][j][0] = i-1;
 					predecessorIndexes[i][j][1] = j-1;
-					System.out.println("case1: "+bothAligned);
 				}
 				else if(seq1WithGap<=bothAligned && seq1WithGap<=seq2WithGap){	//case2 smallest
 					memoTable[i][j] = seq1WithGap;
 					predecessorIndexes[i][j][0] = i-1;
 					predecessorIndexes[i][j][1] = j;
-					System.out.println("case2: "+seq1WithGap);
 				}
 				else{									//case3 smallest
 					memoTable[i][j] = seq2WithGap;
 					predecessorIndexes[i][j][0] = i;
 					predecessorIndexes[i][j][1] = j-1;
-					System.out.println("case3: "+seq2WithGap);
 				}
 			}
 		}
@@ -118,19 +115,16 @@ public class SequenceAlignment {
 				seq2Aligned = seq2.charAt(j) + seq2Aligned;
 				i=i-1;
 				j=j-1;
-				System.out.println("i-1 : j-1 \t" +seq1Aligned+"\t\t|"+seq2Aligned);
 			}
 			else if(memoTable[i][j] - GAP_PENALTY == memoTable[i-1][j]){		//case2: seq1 with gap
 				seq1Aligned = seq1.charAt(i) + seq1Aligned;
 				seq2Aligned = GAP_CHAR + seq2Aligned;
 				i=i-1;
-				System.out.println("i-1 (1 with gap) \t"  +seq1Aligned+"\t\t|"+seq2Aligned);
 			}
 			else if(memoTable[i][j] - GAP_PENALTY == memoTable[i][j-1]){		//case3: seq2 with gap
 				seq2Aligned = seq2.charAt(j) + seq2Aligned;
 				seq1Aligned = GAP_CHAR + seq1Aligned;
 				j=j-1;
-				System.out.println("j-1 (2 w Gap) \t" +seq1Aligned+"\t\t|"+seq2Aligned);
 			}
 		}
 		//Now i==0 or j==0 or both. Finish by adding any additional leading gaps to the start of the sequence whoes pointer ISN'T == 0
@@ -145,7 +139,7 @@ public class SequenceAlignment {
 			j=j-1;
 		}
 
-		System.out.println("\nOptimal Alignment:\n" +seq1Aligned+"\n"+seq2Aligned);
+		System.out.println("\nOptimal Alignment:\n" +seq1Aligned+"\n"+seq2Aligned + "\n\n");
 	}
 
 	public int mismatchPenalty(char char1, char char2){
