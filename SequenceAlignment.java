@@ -79,7 +79,7 @@ public class SequenceAlignment {
 		System.out.println("\nPredecessor table (where the values came from)");
 		printTable3D(predecessorIndexes);
 
-		System.out.println("\n" + memoTable[seq1.length()-1][seq1.length()-1] + "\t is the Minimum penalty for aligning "+seq1 +" & "+seq2);
+		System.out.println("\n" + memoTable[seq1.length()-1][seq2.length()-1] + "\t is the Minimum penalty for aligning "+seq1 +" & "+seq2);
 		findAlignment(seq1, seq2);
 		// findAlignment(seq1, seq2, predecessorIndexes);
 	}
