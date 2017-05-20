@@ -1,7 +1,7 @@
 # Sequence Alignment
-Implementation of the classic **Dynamic Progogramming** problem. Applications include Unix `diff`, DNA sequence matching, "did you mean" search suggestions
+Implementation of the classic **Dynamic Programming** problem. Applications include Unix `diff`, DNA sequence matching, "did you mean" search suggestions
 
-## Problemm Statement 
+## Problem Statement 
 Given 2 sequences, find the minimum cost of aligning the 2 sequences  
 Gaps can be inserted to 1 sequence or the other, but not at the same time  
 `2` = **Gap Penalty (δ)**  

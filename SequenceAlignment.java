@@ -159,7 +159,7 @@ public class SequenceAlignment {
 	public static void main(String[] args) {
 		SequenceAlignment sequenceAligner = new SequenceAlignment();
 
-		String[][] testSequences = { {"MEAN", "name"},
+		String[][] testSequences = {{"MEAN", "name"},
 									{"abc", "ab"},
 									{"asdc", "gcasa"},
 									{"abc", "bc"}
