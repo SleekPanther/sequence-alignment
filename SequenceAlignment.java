@@ -49,27 +49,27 @@ public class SequenceAlignment {
 		//Fill rest of memo table
 		for(int j=1; j<seq2.length(); j++){
 			for(int i=1; i<seq1.length(); i++){
-				int case1 = mismatchPenalty(seq1.charAt(i)+"", seq2.charAt(j)+"") + memoTable[i-1][j-1];	//case1: seq1[i] & seq2[j] aligned with each other
-				int case2 = GAP_PENALTY+memoTable[i-1][j];		//case2: seq1 with gap
-				int case3 = GAP_PENALTY+memoTable[i][j-1];		//case3: seq2 with gap
+				int bothAligned = mismatchPenalty(seq1.charAt(i)+"", seq2.charAt(j)+"") + memoTable[i-1][j-1];	//case1: seq1[i] & seq2[j] aligned with each other
+				int seq1WithGap = GAP_PENALTY+memoTable[i-1][j];		//case2: seq1 with gap
+				int seq2WithGap = GAP_PENALTY+memoTable[i][j-1];		//case3: seq2 with gap
 				//Calculate the min of 3 values & store predecessors
-				if(case1<=case2 && case1<=case3){		//case1 smallest
-					memoTable[i][j] = case1;
+				if(bothAligned<=seq1WithGap && bothAligned<=seq2WithGap){		//case1 smallest
+					memoTable[i][j] = bothAligned;
 					predecessorIndexes[i][j][0] = i-1;
 					predecessorIndexes[i][j][1] = j-1;
-					System.out.println("case1: "+case1);
+					System.out.println("case1: "+bothAligned);
 				}
-				else if(case2<=case1 && case2<=case3){	//case2 smallest
-					memoTable[i][j] = case2;
+				else if(seq1WithGap<=bothAligned && seq1WithGap<=seq2WithGap){	//case2 smallest
+					memoTable[i][j] = seq1WithGap;
 					predecessorIndexes[i][j][0] = i-1;
 					predecessorIndexes[i][j][1] = j;
-					System.out.println("case2: "+case2);
+					System.out.println("case2: "+seq1WithGap);
 				}
 				else{									//case3 smallest
-					memoTable[i][j] = case3;
+					memoTable[i][j] = seq2WithGap;
 					predecessorIndexes[i][j][0] = i;
 					predecessorIndexes[i][j][1] = j-1;
-					System.out.println("case3: "+case3);
+					System.out.println("case3: "+seq2WithGap);
 				}
 			}
 		}
