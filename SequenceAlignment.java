@@ -173,11 +173,14 @@ public class SequenceAlignment {
 		// System.out.println(sequenceAligner.mismatchPenalty("b", "x"));
 		// System.out.println(sequenceAligner.mismatchPenalty("a", "z"));
 
-		String testString1 = "mean";
-		String testString2 = "name";
-		// String testString1 = "acbd";
-		// String testString2 = "zcbd";
-		sequenceAligner.calcOptimalAlignment(testString1, testString2);
+		String[][] testSequences = { {"mean", "name"},
+									{"abc", "ab"},
+									{"asdc", "gcasa"},
+									{"abc", "bc"}
+									};
+		for(int i=0; i< testSequences.length; i++){
+			sequenceAligner.calcOptimalAlignment(testSequences[i][0], testSequences[i][1]);
+		}
 	}
 
 }
