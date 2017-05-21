@@ -14,6 +14,7 @@ public class SequenceAlignment {
 	int[][] memoTable;
 	int[][][] predecessorIndexes;	//stored index where the value @ memoTable[i][j] came from (diagonal, above or left)
 
+	//Creates the memo table for the optimal alignment
 	public void calcOptimalAlignment(String seq1, String seq2){
 		seq1 = seq1.toLowerCase();
 		seq2 = seq2.toLowerCase();
@@ -101,6 +102,7 @@ public class SequenceAlignment {
 		}
 	}
 
+	//Retrace the memoTable to find the actual alignment, not just the minimum cost
 	private void findAlignment(String seq1, String seq2){
 		String seq1Aligned = "";		//Holds the actual sequence with gaps added
 		String seq2Aligned = "";
