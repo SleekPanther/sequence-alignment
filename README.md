@@ -1,5 +1,5 @@
 # Sequence Alignment
-Implementation of the classic **Dynamic Programming** problem. Applications include Unix `diff`, DNA sequence matching, "did you mean" search suggestions
+Implementation of the classic **Dynamic Programming** problem using the [Needleman–Wunsch algorithm](https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm) which requires quadratic space & time complexity.
 
 ## Problem Statement 
 Given 2 sequences, find the minimum cost of aligning the 2 sequences  
