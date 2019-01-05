@@ -1,50 +1,51 @@
-package com.tomatedigital.utils.general;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 public class SequenceAlignment {
-	static final String GAP_CHAR = "_"; //For printing the final alignment
+	static final String GAP_CHAR = "_"; 	//Only For printing the final alignment
 
 	private static final Set<Character> vowels = new HashSet<>(Arrays.asList(new Character[] { 'a', 'e', 'i', 'o', 'u' }));
 	private static final Set<Character> consonants = new HashSet<>(Arrays.asList(new Character[] { 'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z' }));
 	private static final Set<Character> numbers = new HashSet<>(Arrays.asList(new Character[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' }));
 
-
 	private int[][] memoTable;
-	private int[][][] predecessorIndexes; //stored index where the value @ memoTable[i][j] came from (diagonal, above or left)
-	private int gap;
-	private int vowelV;
-	private int consonantC;
-	private int vowelC;
-	private int numberN;
+	private int[][][] predecessorIndexes;	//stores the index where the value at memoTable[i][j] came from (diagonal, above or left)
+
+	private int gapPenalty;
+	private int vowelVowelMismatchPenalty;
+	private int consonantConsonantMismatchPenalty;
+	private int vowelConsonantMismatchPenalty;
+	private int numberNumberMismatchPenalty;
 
 
-	public SequenceAlignment(int gap, int vv, int cc, int vc, int nn) {
-		this.gap = gap;
-		this.vowelV = vv;
-		this.consonantC = cc;
-		this.vowelC = vc;
-		this.numberN = nn;
+	public SequenceAlignment(int gapPenalty, int vowelVowelMismatchPenalty, int consonantConsonantMismatchPenalty, int vowelConsonantMismatchPenalty, int numberNumberMismatchPenalty) {
+		this.gapPenalty = gapPenalty;
+		this.vowelVowelMismatchPenalty = vowelVowelMismatchPenalty;
+		this.consonantConsonantMismatchPenalty = consonantConsonantMismatchPenalty;
+		this.vowelConsonantMismatchPenalty = vowelConsonantMismatchPenalty;
+		this.numberNumberMismatchPenalty = numberNumberMismatchPenalty;
 	}
 
 	public SequenceAlignment() {
 		this(2, 1, 1, 3, 1);
 	}
 
-	//Creates the memo table for the optimal alignment
-	public void calcOptimalAlignment(String seq1, String seq2) {
+	public void calculateAndPrintOptimalAlignment(String seq1, String seq2){
+		calcOptimalAlignment(seq1, seq2, true);
+	}
+
+	public void calcOptimalAlignment(String seq1, String seq2, boolean printResults) {
 		seq1 = seq1.toLowerCase();
 		seq2 = seq2.toLowerCase();
 
-		seq1 = seq1.trim(); //trim any whitespace
+		seq1 = seq1.trim();
 		seq2 = seq2.trim();
 
-		seq1 = seq1.replaceAll(" ", ""); //Remove spaces
+		seq1 = seq1.replaceAll(" ", "");
 		seq2 = seq2.replaceAll(" ", "");
 
-		seq1 = " " + seq1; //prepend a space @ the start. Allows for easier calls to mismatchPenalty() & array boundaryies for size of memoTalbe to be "<" instead of "<="
+		seq1 = " " + seq1;		//prepend a space @ the start. Allows for easier calls to mismatchPenalty() & array boundaryies for size of memoTalbe to be "<" instead of "<="
 		seq2 = " " + seq2;
 
 		//Initialize 2D arrays for memoization
@@ -53,14 +54,14 @@ public class SequenceAlignment {
 
 		//Array bounds are < seq1.length() (not <= ) since both sequences have a blank space @ the start
 		//Fill 0th column
-		for (int i = 0; i < seq1.length(); i++) {
-			memoTable[i][0] = i * this.gap; // base case: j = 0
+		for (int i = 0; i < seq1.length(); i++) {	// base case: j = 0
+			memoTable[i][0] = i * this.gapPenalty;
 			predecessorIndexes[i][0][0] = i - 1;
 			predecessorIndexes[i][0][1] = 0;
 		}
 		//Fill 0th row
-		for (int j = 0; j < seq2.length(); j++) {
-			memoTable[0][j] = j * this.gap; // base case: i = 0
+		for (int j = 0; j < seq2.length(); j++) {	// base case: i = 0
+			memoTable[0][j] = j * this.gapPenalty;
 			predecessorIndexes[0][j][0] = 0;
 			predecessorIndexes[0][j][1] = j - 1;
 		}
@@ -72,28 +73,37 @@ public class SequenceAlignment {
 		//Fill rest of memo table
 		for (int j = 1; j < seq2.length(); j++) {
 			for (int i = 1; i < seq1.length(); i++) {
-				int bothAligned = mismatchPenalty(seq1.charAt(i), seq2.charAt(j)) + memoTable[i - 1][j - 1]; //case1: seq1[i] & seq2[j] aligned with each other
-				int seq1WithGap = this.gap + memoTable[i - 1][j]; //case2: seq1 with gap
-				int seq2WithGap = this.gap + memoTable[i][j - 1]; //case3: seq2 with gap
+				int alignedCharWithCharPenalty = mismatchPenalty(seq1.charAt(i), seq2.charAt(j)) + memoTable[i - 1][j - 1];	//case1: seq1[i] & seq2[j] aligned with each other
+				int seq1CharWithGap = this.gapPenalty + memoTable[i - 1][j];		//case2: seq1 with gap
+				int seq2CharWithGap = this.gapPenalty + memoTable[i][j - 1];		//case3: seq2 with gap
 				//Calculate the min of 3 values & store predecessors
-				if (bothAligned <= seq1WithGap && bothAligned <= seq2WithGap) { //case1 smallest
-					memoTable[i][j] = bothAligned;
+				if (alignedCharWithCharPenalty <= seq1CharWithGap && alignedCharWithCharPenalty <= seq2CharWithGap) {			//case1 is the min
+					memoTable[i][j] = alignedCharWithCharPenalty;
 					predecessorIndexes[i][j][0] = i - 1;
 					predecessorIndexes[i][j][1] = j - 1;
 				}
-				else if (seq1WithGap <= bothAligned && seq1WithGap <= seq2WithGap) { //case2 smallest
-					memoTable[i][j] = seq1WithGap;
+				else if (seq1CharWithGap <= alignedCharWithCharPenalty && seq1CharWithGap <= seq2CharWithGap) {	//case2 is the min
+					memoTable[i][j] = seq1CharWithGap;
 					predecessorIndexes[i][j][0] = i - 1;
 					predecessorIndexes[i][j][1] = j;
 				}
-				else { //case3 smallest
-					memoTable[i][j] = seq2WithGap;
+				else {	//case3 is the min
+					memoTable[i][j] = seq2CharWithGap;
 					predecessorIndexes[i][j][0] = i;
 					predecessorIndexes[i][j][1] = j - 1;
 				}
 			}
 		}
 
+		if(printResults){
+			System.out.println("Memoization table");
+			printTable(memoTable);
+			System.out.println("\nPredecessor table (where the values came from)");	
+			printTable3D(predecessorIndexes);
+
+	 		System.out.println("\n" + memoTable[seq1.length()-1][seq2.length()-1] + "\t is the Minimum penalty for aligning \""+seq1.substring(1, seq1.length()) +"\" & \""+seq2.substring(1, seq2.length()) +"\"");	
+			findAlignment(seq1, seq2, memoTable);
+		}
 	}
 
 	private void printTable(int[][] table) {
@@ -105,17 +115,17 @@ public class SequenceAlignment {
 		}
 	}
 
-	private void printTable3D(int[][][] table) {
-		for (int[][] row : table) {
+	private void printTable3D(int[][][] table3D) {
+		for (int[][] row : table3D) {
 			for (int[] xyPair : row) {
 				System.out.print(Arrays.toString(xyPair) + "\t");
 			}
-			System.out.println(); //Ends up printing a trailing newline
+			System.out.println();
 		}
 	}
 
 	//Retrace the memoTable to find the actual alignment, not just the minimum cost
-	private void findAlignment(String seq1, String seq2) {
+	private void findAlignment(String seq1, String seq2, int[][] memoTable) {
 		String seq1Aligned = ""; //Holds the actual sequence with gaps added
 		String seq2Aligned = "";
 
@@ -130,12 +140,12 @@ public class SequenceAlignment {
 				i = i - 1;
 				j = j - 1;
 			}
-			else if (memoTable[i][j] - this.gap == memoTable[i - 1][j]) { //case2: seq1 with gap
+			else if (memoTable[i][j] - this.gapPenalty == memoTable[i - 1][j]) { //case2: seq1 with gap
 				seq1Aligned = seq1.charAt(i) + seq1Aligned;
 				seq2Aligned = GAP_CHAR + seq2Aligned;
 				i = i - 1;
 			}
-			else if (memoTable[i][j] - this.gap == memoTable[i][j - 1]) { //case3: seq2 with gap
+			else if (memoTable[i][j] - this.gapPenalty == memoTable[i][j - 1]) { //case3: seq2 with gap
 				seq2Aligned = seq2.charAt(j) + seq2Aligned;
 				seq1Aligned = GAP_CHAR + seq1Aligned;
 				j = j - 1;
@@ -157,29 +167,36 @@ public class SequenceAlignment {
 	}
 
 	private int mismatchPenalty(char char1, char char2) {
-		if (char1 == char2) { //no mismatch
+		if (char1 == char2) {
 			return 0;
 		}
 		else if (consonants.contains(char1) && consonants.contains(char2)) {
-			return this.consonantC;
+			return this.consonantConsonantMismatchPenalty;
 		}
 		else if (vowels.contains(char1) && vowels.contains(char2)) {
-			return this.vowelV;
+			return this.vowelVowelMismatchPenalty;
 		}
-		else if (numbers.contains(char1) && numbers.contains(char2))
-			return this.numberN;
-		
-		else
-			return this.vowelC;
+		else if (numbers.contains(char1) && numbers.contains(char2)){
+			return this.numberNumberMismatchPenalty;
+		}
+		return this.vowelConsonantMismatchPenalty;
 	}
 
 
 	public static void main(String[] args) {
-		SequenceAlignment sequenceAligner = new SequenceAlignment();
+		String[][] testSequences = {
+			{ "MEAN", "name" },		//case insensitivity test
+			{ "abc", "ab" },
+			{ "asdc", "gcasa" },
+			{ "abc", "bc" },
+			{ "ab", "zabz" },
+			{ "ab", "1ab" },
+			{ "2ab", "1ab1" },
+		};
 
-		String[][] testSequences = { { "MEAN", "name" }, { "abc", "ab" }, { "asdc", "gcasa" }, { "abc", "bc" } };
+		SequenceAlignment sequenceAligner = new SequenceAlignment();
 		for (int i = 0; i < testSequences.length; i++) {
-			sequenceAligner.calcOptimalAlignment(testSequences[i][0], testSequences[i][1]);
+			sequenceAligner.calculateAndPrintOptimalAlignment(testSequences[i][0], testSequences[i][1]);
 		}
 	}
 
