@@ -35,18 +35,9 @@ public class SequenceAlignment {
 		calcOptimalAlignment(seq1, seq2, true);
 	}
 
-	public void calcOptimalAlignment(String seq1, String seq2, boolean printResults) {
-		seq1 = seq1.toLowerCase();
-		seq2 = seq2.toLowerCase();
-
-		seq1 = seq1.trim();
-		seq2 = seq2.trim();
-
-		seq1 = seq1.replaceAll(" ", "");
-		seq2 = seq2.replaceAll(" ", "");
-
-		seq1 = " " + seq1;		//prepend a space @ the start. Allows for easier calls to mismatchPenalty() & array boundaryies for size of memoTalbe to be "<" instead of "<="
-		seq2 = " " + seq2;
+	public void calcOptimalAlignment(String sequence1Original, String sequence2Original, boolean printResults) {
+		String seq1 = sanitizeSequence(sequence1Original);
+		String seq2 = sanitizeSequence(sequence2Original);
 
 		//Initialize 2D arrays for memoization
 		memoTable = new int[seq1.length()][seq2.length()];
@@ -96,12 +87,14 @@ public class SequenceAlignment {
 		}
 
 		if(printResults){
+			System.out.println("Aligning \""+sequence1Original+"\" with \""+sequence2Original+"\"");
 			System.out.println("Memoization table");
 			printTable(memoTable);
 			System.out.println("\nPredecessor table (where the values came from)");	
 			printTable3D(predecessorIndexes);
 
-	 		System.out.println("\n" + memoTable[seq1.length()-1][seq2.length()-1] + "\t is the Minimum penalty for aligning \""+seq1.substring(1, seq1.length()) +"\" & \""+seq2.substring(1, seq2.length()) +"\"");	
+			int minimumPenalty = memoTable[sequence1Original.length()][sequence2Original.length()];
+	 		System.out.println("\n" + minimumPenalty + "\t is the Minimum penalty for aligning \""+sequence1Original+"\" with \""+sequence2Original+"\"");
 			findAlignment(seq1, seq2, memoTable);
 		}
 	}
@@ -126,7 +119,7 @@ public class SequenceAlignment {
 
 	//Retrace the memoTable to find the actual alignment, not just the minimum cost
 	private void findAlignment(String seq1, String seq2, int[][] memoTable) {
-		String seq1Aligned = ""; //Holds the actual sequence with gaps added
+		String seq1Aligned = ""; 	//Holds the actual sequence with gaps added
 		String seq2Aligned = "";
 
 		int i = seq1.length() - 1; //-1 since seq1 & seq2 have leading space
@@ -151,13 +144,13 @@ public class SequenceAlignment {
 				j--;
 			}
 		}
-		//Now i==0 or j==0 or both. Finish by adding any additional leading gaps to the start of the sequence whoes pointer ISN'T == 0
-		while (i > 0) { //Seq1 reached the beginning, print rest of seq2 & add gaps to seq2
+		//Now i==0 or j==0 or both. Finish by adding any additional leading gaps to the start of the sequence whose pointer ISN'T == 0
+		while (i > 0) {		//Seq1 reached the beginning, print rest of seq2 & add gaps to seq2
 			seq1Aligned = seq1.charAt(i) + seq1Aligned;
 			seq2Aligned = GAP_CHAR + seq2Aligned;
 			i--;
 		}
-		while (j > 0) { //Seq2 reached the beginning, print rest of seq1 & add gaps to seq2
+		while (j > 0) {		//Seq2 reached the beginning, print rest of seq1 & add gaps to seq2
 			seq2Aligned = seq2.charAt(j) + seq2Aligned;
 			seq1Aligned = GAP_CHAR + seq1Aligned;
 			j--;
@@ -180,6 +173,12 @@ public class SequenceAlignment {
 			return this.numberNumberMismatchPenalty;
 		}
 		return this.vowelConsonantMismatchPenalty;
+	}
+
+	private String sanitizeSequence(String sequence){
+		return " " + sequence		//prepend a space @ the start. Allows for easier calls to mismatchPenalty() & array boundaries for size of memoTalbe to be "<" instead of "<="
+				.toLowerCase()
+				.replaceAll("[^a-z0-9]", "");	//remove all characters other than letters & digits (trims surrounding whitespace & removes spaces too). a-z matches the lowercase alphabet since previous line guarantees lowercase
 	}
 
 
